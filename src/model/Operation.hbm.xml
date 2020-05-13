@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated May 12, 2020 12:37:21 AM by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="model.Operation" table="operation" catalog="java" optimistic-lock="version">
+        <id name="opid" type="java.lang.Integer">
+            <column name="opid" />
+            <generator class="identity" />
+        </id>
+        <property name="clientname" type="string">
+            <column name="clientname" length="50" />
+        </property>
+        <property name="bookname" type="string">
+            <column name="bookname" length="50" />
+        </property>
+        <property name="author" type="string">
+            <column name="author" length="50" />
+        </property>
+        <property name="returndate" type="date">
+            <column name="returndate" length="10" />
+        </property>
+        <property name="status" type="string">
+            <column name="status" length="30" />
+        </property>
+    </class>
+</hibernate-mapping>
