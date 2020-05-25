@@ -9,6 +9,7 @@ import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import com.toedter.calendar.JDateChooser;
 import dao.BookDao;
 import dao.OperationDao;
 import java.awt.Image;
@@ -17,6 +18,12 @@ import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -40,6 +47,7 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
+import rmi_service.IOperation;
 import utility.HibernateUtil;
 
 /**
@@ -84,11 +92,18 @@ public class OperationView extends javax.swing.JInternalFrame {
      */
     public OperationView() {
         initComponents();
+         initializer();
         insertt();
         addBookCatToCombo();
         
        
         
+        
+    }
+  public void  initializer(){
+      JDateChooser jd = new JDateChooser();
+      jd.setDateFormatString("YYYY-MM-dd");
+      
         
     }
 
@@ -562,14 +577,31 @@ public class OperationView extends javax.swing.JInternalFrame {
     private void checkinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkinActionPerformed
         // TODO add your handling code here:
         
-        op.setClientname(resultclientname.getText());
+       /* op.setClientname(resultclientname.getText());
         op.setBookname(resultbookname.getText());
         op.setAuthor(resultbookauthor.getText());
         op.setReturndate(new Date(returndate.getDate().getTime()));
         op.setStatus("check_in");
         opd.saveOperation(op);
         insert();
-        JOptionPane.showMessageDialog(null, "Data saved"); 
+        JOptionPane.showMessageDialog(null, "Data saved"); */
+        try {
+            Registry registry = LocateRegistry.getRegistry("localhost", 2001);
+            IOperation operationservice = (IOperation) registry.lookup("operationservice");
+             
+        String a=resultclientname.getText();
+        String b=resultbookname.getText();
+        String c=resultbookauthor.getText();
+         Date d=(new Date(returndate.getDate().getTime()));
+        String e="check_in";
+        boolean result = operationservice.save(a,b,c,d,e);
+        insertt();
+        JOptionPane.showMessageDialog(null, "Saved Successfully!!");
+        System.out.println(result ? "Saved Successfully!!" : "Error. can't be Saved!!");
+        insertt();
+        } catch (RemoteException | NotBoundException ex) {
+            Logger.getLogger(OperationView.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         
     }//GEN-LAST:event_checkinActionPerformed
@@ -710,14 +742,31 @@ public class OperationView extends javax.swing.JInternalFrame {
 
     private void checkoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkoutActionPerformed
         // TODO add your handling code here:
-        op.setClientname(resultclientname.getText());
+       /* op.setClientname(resultclientname.getText());
         op.setBookname(resultbookname.getText());
         op.setAuthor(resultbookauthor.getText());
         op.setReturndate(new Date(returndate.getDate().getTime()));
         op.setStatus("check_out");
         opd.saveOperation(op);
         insert();
-        JOptionPane.showMessageDialog(null, "Data saved"); 
+        JOptionPane.showMessageDialog(null, "Data saved"); */
+            try {
+            Registry registry = LocateRegistry.getRegistry("localhost", 2001);
+            IOperation operationservice = (IOperation) registry.lookup("operationservice");
+             
+        String a=resultclientname.getText();
+        String b=resultbookname.getText();
+        String c=resultbookauthor.getText();
+        Date d=(new Date(returndate.getDate().getTime()));
+        String e="check_out";
+        boolean result = operationservice.save(a,b,c,d,e);
+        insertt();
+        JOptionPane.showMessageDialog(null, "Saved Successfully!!");
+        System.out.println(result ? "Saved Successfully!!" : "Error. can't be Saved!!");
+        insert();
+        } catch (RemoteException | NotBoundException ex) {
+            Logger.getLogger(OperationView.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_checkoutActionPerformed
 
     private void searchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchActionPerformed
@@ -766,15 +815,37 @@ public class OperationView extends javax.swing.JInternalFrame {
             ses.close();
         } 
     
+
           else if (fromdate.getDate() == null) {
-               st = "Check_in";
-            Criteria cr = ses.createCriteria(Operation.class, "status = Check_in");
-            cr.add(Restrictions.eq("status", st));
-            List ls = cr.list();
-            DefaultTableModel model = (DefaultTableModel) reporttable.getModel();
+  String id=null;
+   String title=null;
+        String name = bkcategory.getSelectedItem().toString();
+        Criteria Bookcat = ses.createCriteria(Category.class);
+        SQLQuery query = ses.createSQLQuery("select categoryId from Category where categoryName=?");
+         query.setParameter(0, name);
+          List temp = query.list();
+           for (Object obj : temp) {
+                id = obj.toString();
+            }
+           String tid=id;
+        SQLQuery queryy = ses.createSQLQuery("select title from Book where category=?");
+        queryy.setParameter(0, tid);
+        List tempp = queryy.list();
+        
+      
+        for (Object objj : tempp) {
+                title = objj.toString();
+       
+        }
+      Criteria crnext = ses.createCriteria(Operation.class);
+        crnext.add(Restrictions.ge("bookname", title));
+                List lss = crnext.list();
+           
+         
+      DefaultTableModel model = (DefaultTableModel) reporttable.getModel();
             model.setRowCount(0);
             Object[] o = new Object[5];
-            for (Iterator i = ls.iterator(); i.hasNext();) {
+            for (Iterator i = lss.iterator(); i.hasNext();) {
                 Operation ch = (Operation) i.next();
                 o[0] = ch.getClientname();
                 o[1] = ch.getBookname();
@@ -782,9 +853,14 @@ public class OperationView extends javax.swing.JInternalFrame {
                 o[3] = ch.getReturndate();
                 o[4] = ch.getStatus();
                 model.addRow(o);
-                  }
-            ses.close();
-          }
+            }
+
+
+       
+        
+        
+        ses.close();
+}
     
         else {
             Date from = fromdate.getDate();

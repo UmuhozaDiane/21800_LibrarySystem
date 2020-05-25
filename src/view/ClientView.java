@@ -21,6 +21,17 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import model.Client;
 
+
+
+import java.rmi.AccessException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import rmi_service.IClient;
+
 /**
  *
  * @author UMUHOZA Diane
@@ -356,7 +367,8 @@ public class ClientView extends javax.swing.JInternalFrame {
 
     private void saveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveActionPerformed
         // TODO add your handling code here:
-        c.setRegno(regno.getText());
+     
+             /*   c.setRegno(regno.getText());
         c.setFirstname(fname.getText());
         c.setLastname(lname.getText());
         c.setPhone(phone.getText());
@@ -365,7 +377,32 @@ public class ClientView extends javax.swing.JInternalFrame {
         c.setPhoto(filepath);
         cd.saveClient(c);
         insertJtable();
-        JOptionPane.showMessageDialog(this, "data saved!");
+        JOptionPane.showMessageDialog(this, "data saved!");*/
+             
+         try{
+            Registry registry= LocateRegistry.getRegistry("localhost",2001);
+            IClient clientservice =(IClient) registry.lookup("clientservice");
+        String a=regno.getText();
+        String b=fname.getText();
+        String c=lname.getText();
+        String d=phone.getText();
+        String e =email.getText();
+        String f=category.getSelectedItem().toString();
+        String g=filepath;
+        boolean result = clientservice.save(a,b,c,d,e,f,g);
+        insertJtable();
+        JOptionPane.showMessageDialog(this, "Saved Successfully!");
+            
+           
+            System.out.println(result ? "Saved Successfully" : "Error. can't be saved");
+      } catch (RemoteException | NotBoundException ex) {
+            Logger.getLogger(ClientView.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        
+    
+      
+             
+             
         
         
         
@@ -378,7 +415,7 @@ public class ClientView extends javax.swing.JInternalFrame {
 
     private void updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateActionPerformed
         // TODO add your handling code here:
-        c.setRegno(regno.getText());
+       /* c.setRegno(regno.getText());
         c.setFirstname(fname.getText());
         c.setLastname(lname.getText());
         c.setPhone(phone.getText());
@@ -387,15 +424,48 @@ public class ClientView extends javax.swing.JInternalFrame {
         c.setPhoto(filepath);
         cd.updateClient(c);
         insertJtable();
-        JOptionPane.showMessageDialog(this, "data updated!");
+        JOptionPane.showMessageDialog(this, "data updated!");*/
+          try{
+            Registry registry= LocateRegistry.getRegistry("localhost",2001);
+            IClient clientservice =(IClient) registry.lookup("clientservice");
+        String a=regno.getText();
+        String b=fname.getText();
+        String c=lname.getText();
+        String d=phone.getText();
+        String e =email.getText();
+        String f=category.getSelectedItem().toString();
+        String g=filepath;
+        boolean result = clientservice.update(a,b,c,d,e,f,g);
+        insertJtable();
+        JOptionPane.showMessageDialog(this, " updated Successfully!");
+            
+           
+            System.out.println(result ? "updated Successfully" : "Error. can't be saved");
+      } catch (RemoteException | NotBoundException ex) {
+            Logger.getLogger(ClientView.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        
     }//GEN-LAST:event_updateActionPerformed
 
     private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
         // TODO add your handling code here:
-         c.setRegno(regno.getText());
+       /*  c.setRegno(regno.getText());
          cd.deleteClient(c);
          insertJtable();
-         JOptionPane.showMessageDialog(this, "data deleted!");
+         JOptionPane.showMessageDialog(this, "data deleted!");*/
+        try{
+            Registry registry= LocateRegistry.getRegistry("localhost",2001);
+            IClient clientservice =(IClient) registry.lookup("clientservice");
+        String a=regno.getText();
+        boolean result = clientservice.delete(a);
+        insertJtable();
+        JOptionPane.showMessageDialog(this, " deleted Successfully!");
+            
+           
+            System.out.println(result ? "deleted Successfully" : "Error. can't be saved");
+      } catch (RemoteException | NotBoundException ex) {
+            Logger.getLogger(ClientView.class.getName()).log(Level.SEVERE, null, ex);
+        } 
          
     }//GEN-LAST:event_deleteActionPerformed
 

@@ -1,4 +1,4 @@
-package model;
+ package model;
 // Generated May 12, 2020 12:37:21 AM by Hibernate Tools 4.3.1
 
 
@@ -27,6 +27,10 @@ public class Operation  implements java.io.Serializable {
        this.returndate = returndate;
        this.status = status;
     }
+
+   // public Operation(String clientname, String bookname, String author, String returndate, String status) {
+    
+   // }
    
     public Integer getOpid() {
         return this.opid;

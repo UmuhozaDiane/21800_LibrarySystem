@@ -26,9 +26,8 @@ public class Book  implements java.io.Serializable {
     public Book(String bookId) {
         this.bookId = bookId;
     }
-    public Book(String bookId, Category category, String title, String phouse, Date pdate, String author, Integer pages, String category_1) {
+    public Book(String bookId, String title, String phouse, Date pdate, String author, Integer pages, String category_1) {
        this.bookId = bookId;
-       this.category = category;
        this.title = title;
        this.phouse = phouse;
        this.pdate = pdate;
@@ -36,6 +35,19 @@ public class Book  implements java.io.Serializable {
        this.pages = pages;
        this.category_1 = category_1;
     }
+
+   /* public Book(String bookId, String title, String phouse, Date parse, String author, int pages, String category_1) {
+       this.bookId = bookId;
+       this.title = title;
+       this.phouse = phouse;
+       this.pdate = pdate;
+       this.author = author;
+       this.pages = pages;
+       this.category_1 = category_1;
+      
+    }*/
+
+  
    
     public String getBookId() {
         return this.bookId;

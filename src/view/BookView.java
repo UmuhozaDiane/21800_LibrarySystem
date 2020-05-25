@@ -5,12 +5,20 @@
  */
 package view;
 
+import com.toedter.calendar.JDateChooser;
 import dao.BookCategoryDao;
 import dao.BookDao;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.binding.ListBinding;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -20,6 +28,8 @@ import org.hibernate.Criteria;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import rmi_service.IBook;
+import rmi_service.IBookCategory;
 import utility.HibernateUtil;
 
 /**
@@ -36,7 +46,8 @@ public class BookView extends javax.swing.JInternalFrame {
     public void  addCatNameToCombo(){
         
         List<String> catName = bd.getCategoryName();
-        bcategory.removeAll();
+        
+       bcategory.removeAllItems();
         for(String cat:catName){
             bcategory.addItem(cat.toString());
         }
@@ -81,10 +92,19 @@ public class BookView extends javax.swing.JInternalFrame {
     public BookView() {
     
         initComponents();
+          initializer();
          insertJtableBook();
          insertJtableCategory();
-         insertJtableBook();
+       //  insertJtableBook();
          addCatNameToCombo();
+    }
+    
+    public void  initializer(){
+      JDateChooser jd = new JDateChooser();
+      jd.setDateFormatString("YYYY-MM-dd");
+      
+      
+        
     }
 
     /**
@@ -490,7 +510,7 @@ public class BookView extends javax.swing.JInternalFrame {
 
     private void BsaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BsaveActionPerformed
        
-        b.setBookId(bookid.getText());
+       /* b.setBookId(bookid.getText());
         b.setTitle(title.getText());
         b.setPhouse(house.getText());
         b.setPdate(new Date(date.getDate().getTime()));
@@ -514,8 +534,46 @@ public class BookView extends javax.swing.JInternalFrame {
         
         bd.saveBook(b);
         insertJtableBook();
-        JOptionPane.showMessageDialog(this, "data saved!");
+        JOptionPane.showMessageDialog(this, "data saved!");*/
+        
+        
+        
+         try {
+            Registry registry = LocateRegistry.getRegistry("localhost", 2001);
+            IBook bookservice = (IBook) registry.lookup("bookservice");
+            
        
+           String a=bookid.getText();
+           String b=title.getText();
+           String c=house.getText();
+          Date d=(new Date(date.getDate().getTime()));
+           String e =author.getText();
+           int f=Integer.valueOf(page.getValue().toString());
+            String id=null;
+        String name = bcategory.getSelectedItem().toString();
+        Transaction tr =null;
+        Session ses = HibernateUtil.getSessionFactory().openSession(); 
+        tr =ses.beginTransaction();
+        Criteria Bookcat = ses.createCriteria(Category.class);
+        SQLQuery query = ses.createSQLQuery("select categoryId from Category where categoryName=?");
+         query.setParameter(0, name);
+          List temp = query.list();
+           for (Object obj : temp) {
+                id = obj.toString();
+            }
+        ses.close();
+        String g= id;
+        boolean out = bookservice.save(a,b,c,d,e,f,g);
+        
+        insertJtableBook();
+        JOptionPane.showMessageDialog(this, "Saved Successfully!!");  
+        System.err.println(out ? "Saved Successfully!!" : "Error Ocurred. Can't Saved ");
+        insertJtableBook();
+        } catch (RemoteException | NotBoundException ex) {
+            Logger.getLogger(BookView.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
+    
       
         
     }//GEN-LAST:event_BsaveActionPerformed
@@ -531,12 +589,30 @@ public class BookView extends javax.swing.JInternalFrame {
 
     private void TsaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TsaveActionPerformed
         // TODO add your handling code here:
-        ct.setCategoryId(id.getText());
+       /* ct.setCategoryId(id.getText());
         ct.setCategoryName(name.getText());
         ctd.saveBookCategory(ct);
         insertJtableCategory();
         addCatNameToCombo();
-          JOptionPane.showMessageDialog(this, "data saved!");
+          JOptionPane.showMessageDialog(this, "data saved!");*/
+       
+          try {
+            Registry registry = LocateRegistry.getRegistry("localhost", 2001);
+            IBookCategory bookcategoryservice = (IBookCategory) registry.lookup("bookcategoryservice");
+          String a= id.getText();
+          String b=name.getText();
+          boolean out = bookcategoryservice.save(a,b);
+         insertJtableCategory();
+          addCatNameToCombo();
+           
+             JOptionPane.showMessageDialog(this, "Saved Successfully!!");
+            System.out.println(out ? "Saved Successfully!!" : "Error. cant't Saved!");
+              insertJtableCategory();
+        } catch (RemoteException | NotBoundException ex) {
+            Logger.getLogger(BookView.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
+          
     }//GEN-LAST:event_TsaveActionPerformed
 
     private void TexitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TexitActionPerformed
@@ -546,7 +622,7 @@ public class BookView extends javax.swing.JInternalFrame {
 
     private void BupdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BupdateActionPerformed
         // TODO add your handling code here:
-              b.setBookId(bookid.getText());
+        /*      b.setBookId(bookid.getText());
         b.setTitle(title.getText());
         b.setPhouse(house.getText());
         b.setPdate(new Date(date.getDate().getTime()));
@@ -570,7 +646,43 @@ public class BookView extends javax.swing.JInternalFrame {
         
         bd.saveBook(b);
         insertJtableBook();
-        JOptionPane.showMessageDialog(this, "data updated!");
+        JOptionPane.showMessageDialog(this, "data updated!");*/
+           try {
+            Registry registry = LocateRegistry.getRegistry("localhost", 2001);
+            IBook bookservice = (IBook) registry.lookup("bookservice");
+            
+       
+           String a=bookid.getText();
+           String b=title.getText();
+           String c=house.getText();
+           SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
+           String d = sdf.format(date.getDate());
+           String e =author.getText();
+           int f=Integer.valueOf(page.getValue().toString());
+            String id=null;
+        String name = bcategory.getSelectedItem().toString();
+        Transaction tr =null;
+        Session ses = HibernateUtil.getSessionFactory().openSession(); 
+        tr =ses.beginTransaction();
+        Criteria Bookcat = ses.createCriteria(Category.class);
+        SQLQuery query = ses.createSQLQuery("select categoryId from Category where categoryName=?");
+         query.setParameter(0, name);
+          List temp = query.list();
+           for (Object obj : temp) {
+                id = obj.toString();
+            }
+        ses.close();
+        String g= id;
+        boolean out = bookservice.update(a,b,c,d,e,f,g);
+        
+        insertJtableBook();
+        JOptionPane.showMessageDialog(this, "updated Successfully!!");
+        System.err.println(out ? "updated Successfully!!" : "Error Ocurred. Can't Saved ");
+        insertJtableBook();
+        } catch (RemoteException | NotBoundException ex) {
+            Logger.getLogger(BookView.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
        
         
       
@@ -578,10 +690,27 @@ public class BookView extends javax.swing.JInternalFrame {
 
     private void BdeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BdeleteActionPerformed
         // TODO add your handling code here:
-        b.setBookId(bookid.getText());
+     /*  b.setBookId(bookid.getText());
         bd.deleteBook(b);
         insertJtableBook();
-        JOptionPane.showMessageDialog(this, "data deleted!");
+        JOptionPane.showMessageDialog(this, "data deleted!");*/
+         try {
+            Registry registry = LocateRegistry.getRegistry("localhost", 2001);
+            IBook bookservice = (IBook) registry.lookup("bookservice");
+            
+       
+           String a=bookid.getText();
+           
+        boolean out = bookservice.delete(a);
+        
+        insertJtableBook();
+        JOptionPane.showMessageDialog(this, "deleted Successfully!!");
+          
+            System.err.println(out ? "deleted Successfully!!" : "Error Ocurred. Can't Saved ");
+        } catch (RemoteException | NotBoundException ex) {
+            Logger.getLogger(BookView.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
         
         
     }//GEN-LAST:event_BdeleteActionPerformed
@@ -602,22 +731,54 @@ public class BookView extends javax.swing.JInternalFrame {
 
     private void TupdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TupdateActionPerformed
         // TODO add your handling code here:
-         ct.setCategoryId(id.getText());
+       /*  ct.setCategoryId(id.getText());
         ct.setCategoryName(name.getText());
         ctd.updateBookCategory(ct);
         insertJtableCategory();
         addCatNameToCombo();
-          JOptionPane.showMessageDialog(this, "data saved!");
+          JOptionPane.showMessageDialog(this, "data saved!");*/
+         
+           try {
+         Registry registry = LocateRegistry.getRegistry("localhost", 2001);
+         IBookCategory bookcategoryservice = (IBookCategory) registry.lookup("bookcategoryservice");
+          String a= id.getText();
+          String b=name.getText();
+          boolean out = bookcategoryservice.update(a,b);
+          insertJtableCategory();
+          addCatNameToCombo();
+        
+           
+          JOptionPane.showMessageDialog(this, "updated Successfully!!");
+          System.out.println(out ? "updated Successfully!!" : "Error. cant't Saved!");
+           insertJtableCategory();
+        } catch (RemoteException | NotBoundException ex) {
+            Logger.getLogger(BookView.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_TupdateActionPerformed
 
     private void TdeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TdeleteActionPerformed
         // TODO add your handling code here:
-          ct.setCategoryId(id.getText());
+        /*  ct.setCategoryId(id.getText());
           ctd.deleteBookCategory(ct);
           insertJtableCategory();
           
        addCatNameToCombo();
-          JOptionPane.showMessageDialog(this, "data deleted!");
+          JOptionPane.showMessageDialog(this, "data deleted!");*/
+          try {
+            Registry registry = LocateRegistry.getRegistry("localhost", 2001);
+            IBookCategory bookcategoryservice = (IBookCategory) registry.lookup("bookcategoryservice");
+          String a= id.getText();
+          boolean out = bookcategoryservice.delete(a);
+          insertJtableCategory();
+          addCatNameToCombo();
+           
+             JOptionPane.showMessageDialog(this, "deleted Successfully!!");
+            System.out.println(out ? "deleted Successfully!!" : "Error. cant't Saved!");
+             insertJtableCategory();
+        } catch (RemoteException | NotBoundException ex) {
+            Logger.getLogger(BookView.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       
     }//GEN-LAST:event_TdeleteActionPerformed
 
     private void TclearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TclearActionPerformed
